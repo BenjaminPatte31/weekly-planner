@@ -7,8 +7,9 @@ import TaskBlock from './TaskBlock'
 import { format, isToday } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { timeToMinutes } from '../../lib/timeUtils'
-const HOURS = Array.from({ length: 24 }, (_, i) => i)
-const MIN_SLOT_HEIGHT = 56
+import { START_HOUR, MIN_SLOT_HEIGHT } from './WeekGrid'
+
+const HOURS = Array.from({ length: 23 - START_HOUR + 1 }, (_, i) => i + START_HOUR)
 
 export default function DayColumn({ date, dayIndex, tasks, onAddTask, onEditTask, onToggle }) {
   const isCurrentDay = isToday(date)
@@ -46,28 +47,25 @@ export default function DayColumn({ date, dayIndex, tasks, onAddTask, onEditTask
             />
           ))}
 
-          {/* Task blocks — absolutely positioned */}
+          {/* Task blocks — absolutely positioned with minute precision */}
           <AnimatePresence>
             {tasks.map(task => {
               const startMins = timeToMinutes(task.start_time || `${String(task.start_hour).padStart(2,'0')}:00`)
-              const endMins = timeToMinutes(task.end_time || `${String(Math.min(24, task.start_hour + task.duration)).padStart(2,'0')}:00`)
+              const endMins   = timeToMinutes(task.end_time   || `${String(Math.min(24, task.start_hour + task.duration)).padStart(2,'0')}:00`)
               const durationMins = Math.max(15, endMins - startMins)
-              
+
+              // Offset from START_HOUR
+              const topPx    = ((startMins - START_HOUR * 60) / 60) * MIN_SLOT_HEIGHT
+              const heightPx = (durationMins / 60) * MIN_SLOT_HEIGHT
+
               return (
                 <div
                   key={task.id}
                   className="absolute inset-x-0 pointer-events-none group px-1"
-                  style={{
-                    top:    `${(startMins / 60) * MIN_SLOT_HEIGHT}px`,
-                    height: `${(durationMins / 60) * MIN_SLOT_HEIGHT}px`,
-                  }}
+                  style={{ top: `${topPx}px`, height: `${heightPx}px` }}
                 >
                   <div className="relative h-full pointer-events-auto shadow-sm">
-                    <TaskBlock
-                      task={task}
-                      onClick={onEditTask}
-                      onToggle={onToggle}
-                    />
+                    <TaskBlock task={task} onClick={onEditTask} onToggle={onToggle} />
                   </div>
                 </div>
               )
@@ -82,7 +80,6 @@ export default function DayColumn({ date, dayIndex, tasks, onAddTask, onEditTask
 function HourSlot({ hour, dayIndex, onAdd }) {
   const [hover, setHover] = useState(false)
   const id = `slot-${dayIndex}-${hour}`
-
   const { setNodeRef, isOver } = useDroppable({ id })
 
   return (
@@ -93,7 +90,6 @@ function HourSlot({ hour, dayIndex, onAdd }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {/* Hover add button */}
       <AnimatePresence>
         {hover && (
           <motion.button
@@ -112,7 +108,6 @@ function HourSlot({ hour, dayIndex, onAdd }) {
         )}
       </AnimatePresence>
 
-      {/* Drop indicator */}
       {isOver && (
         <div className="absolute inset-x-1 top-0 h-0.5 bg-accent-blue rounded-full" />
       )}

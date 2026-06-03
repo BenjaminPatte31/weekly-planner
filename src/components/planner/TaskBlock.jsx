@@ -41,10 +41,11 @@ export default function TaskBlock({ task, onClick, onToggle, isDragging }) {
       onClick={() => onClick(task)}
     >
       <div
-        className="h-full rounded-xl p-1.5 flex flex-col gap-0.5 relative overflow-hidden"
+        className="h-full rounded-xl p-1.5 flex flex-col gap-0.5 relative overflow-hidden cursor-pointer hover:brightness-110 transition-all"
         style={{
-          background:  `${color}22`,
-          border:      `1px solid ${color}44`,
+          background: `${color}28`,
+          border:     `1.5px solid ${color}60`,
+          boxShadow:  `0 2px 8px ${color}20`,
         }}
       >
         {/* Color left bar */}
@@ -81,27 +82,22 @@ export default function TaskBlock({ task, onClick, onToggle, isDragging }) {
             </AnimatePresence>
           </button>
 
-          {/* Title */}
+          {/* Title + time */}
           <div className="flex-1 min-w-0">
-            <p
-              className={`text-[11px] font-semibold leading-tight transition-all duration-200 ${
-                task.is_done ? 'line-through text-text-tertiary' : 'text-text-primary'
-              }`}
-              style={{ wordBreak: 'break-word' }}
-            >
-              {task.title}
-            </p>
-            {true && (
-              <p className="text-[9px] text-text-tertiary mt-0.5">
-                {startTimeStr} – {endTimeStr}
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] leading-none flex-shrink-0">{cat?.emoji}</span>
+              <p
+                className={`text-[11px] font-semibold leading-tight transition-all duration-200 truncate ${
+                  task.is_done ? 'line-through text-text-tertiary' : 'text-text-primary'
+                }`}
+              >
+                {task.title}
               </p>
-            )}
+            </div>
+            <p className="text-[9px] text-text-tertiary mt-0.5">
+              {startTimeStr} – {endTimeStr}
+            </p>
           </div>
-
-          {/* Emoji */}
-          {task.duration >= 2 && (
-            <span className="text-[10px] leading-none flex-shrink-0">{cat?.emoji}</span>
-          )}
         </div>
 
         {/* Done overlay shimmer */}

@@ -13,9 +13,12 @@ import { TaskBlockOverlay } from './TaskBlock'
 import { getWeekDays } from '../../hooks/useProgress'
 import { timeToMinutes, minutesToTime } from '../../lib/timeUtils'
 
-const HOURS            = Array.from({ length: 24 }, (_, i) => i)
-const MIN_SLOT_HEIGHT  = 56
+const START_HOUR       = 7
+const END_HOUR         = 23
+const HOURS            = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => i + START_HOUR)
+const MIN_SLOT_HEIGHT  = 60
 const TIME_COL_WIDTH   = 48 // px
+export { START_HOUR, MIN_SLOT_HEIGHT }
 
 const currentHour = new Date().getHours()
 
@@ -115,7 +118,9 @@ function CurrentTimeBar() {
   const now     = new Date()
   const hours   = now.getHours()
   const minutes = now.getMinutes()
-  const top     = (hours + minutes / 60) * MIN_SLOT_HEIGHT + 68 // +68 for header
+  // Only show if within visible range 7-23
+  if (hours < START_HOUR || hours > END_HOUR) return null
+  const top = ((hours - START_HOUR) + minutes / 60) * MIN_SLOT_HEIGHT + 68
 
   return (
     <div
