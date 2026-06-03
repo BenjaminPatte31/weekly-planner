@@ -138,30 +138,15 @@ export default function App() {
             {statsPanelOpen && (
               <motion.aside
                 initial={{ opacity: 0, x: 32, width: 0 }}
-                animate={{ opacity: 1, x: 0, width: 220 }}
+                animate={{ opacity: 1, x: 0, width: 240 }}
                 exit={{ opacity: 0, x: 32, width: 0 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-                className="flex-shrink-0 border-l border-bg-border/40 p-4 overflow-y-auto no-scrollbar"
+                className="flex-shrink-0 border-l border-bg-border/40 p-3 overflow-y-auto no-scrollbar"
               >
                 <StatsPanel
                   progress={progress}
                   workspaceName={activeWorkspace?.name}
                 />
-
-                {/* Quick tips */}
-                <div className="mt-4 glass-light rounded-2xl p-3 space-y-2">
-                  <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider">Astuces</p>
-                  {[
-                    { icon: '🖱️', text: 'Glisse une tâche pour la déplacer' },
-                    { icon: '✅', text: 'Coche pour marquer comme fait' },
-                    { icon: '🤝', text: 'Partage l\'ID de ton espace équipe' },
-                  ].map(({ icon, text }) => (
-                    <div key={text} className="flex items-start gap-2">
-                      <span className="text-sm">{icon}</span>
-                      <p className="text-[11px] text-text-secondary leading-snug">{text}</p>
-                    </div>
-                  ))}
-                </div>
               </motion.aside>
             )}
           </AnimatePresence>
