@@ -11,6 +11,7 @@ import {
 import DayColumn from './DayColumn'
 import { TaskBlockOverlay } from './TaskBlock'
 import { getWeekDays } from '../../hooks/useProgress'
+import { timeToMinutes, minutesToTime } from '../../lib/timeUtils'
 
 const HOURS            = Array.from({ length: 24 }, (_, i) => i)
 const MIN_SLOT_HEIGHT  = 56
@@ -39,7 +40,20 @@ export default function WeekGrid({ weekStart, tasks, onAddTask, onEditTask, onTo
       const parts    = over.id.split('-')
       const newDay   = Number(parts[1])
       const newHour  = Number(parts[2])
-      onMoveTask(active.id, { day_of_week: newDay, start_hour: newHour })
+      
+      const oldStartMins = timeToMinutes(activeTask.start_time || `${String(activeTask.start_hour).padStart(2,'0')}:00`)
+      const oldEndMins   = timeToMinutes(activeTask.end_time || `${String(Math.min(24, activeTask.start_hour + activeTask.duration)).padStart(2,'0')}:00`)
+      const durationMins = oldEndMins - oldStartMins
+      
+      const newStartMins = newHour * 60
+      const newEndMins   = newStartMins + durationMins
+      
+      onMoveTask(active.id, { 
+        day_of_week: newDay, 
+        start_hour: newHour,
+        start_time: minutesToTime(newStartMins),
+        end_time: minutesToTime(newEndMins)
+      })
     }
   }
 

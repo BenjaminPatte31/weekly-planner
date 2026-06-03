@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check, Trash2, Clock, AlignLeft, Tag } from 'lucide-react'
+import { X, Check, Trash2, Clock, Tag } from 'lucide-react'
 
 export const CATEGORIES = [
   { value: 'work',     label: 'Travail',   color: '#0A84FF', emoji: '💼' },
@@ -10,9 +10,6 @@ export const CATEGORIES = [
   { value: 'learning', label: 'Formation', color: '#5AC8FA', emoji: '📚' },
   { value: 'other',    label: 'Autre',     color: '#48484A', emoji: '📌' },
 ]
-
-const HOURS = Array.from({ length: 24 }, (_, i) => i)
-const DURATIONS = [1, 2, 3, 4, 6, 8]
 
 const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
@@ -31,8 +28,13 @@ export default function TaskModal({ task, defaultDay, defaultHour, onSave, onDel
   const [title,      setTitle]      = useState(task?.title      ?? '')
   const [description,setDescription]= useState(task?.description ?? '')
   const [day,        setDay]        = useState(task?.day_of_week ?? defaultDay ?? 0)
-  const [startHour,  setStartHour]  = useState(task?.start_hour  ?? defaultHour ?? 8)
-  const [duration,   setDuration]   = useState(task?.duration    ?? 1)
+  
+  // Default to whole hour, or task's precise time
+  const initStart = task?.start_time ?? `${String(defaultHour ?? 8).padStart(2,'0')}:00`
+  const initEnd   = task?.end_time   ?? `${String((defaultHour ?? 8) + 1).padStart(2,'0')}:00`
+  
+  const [startTime,  setStartTime]  = useState(initStart)
+  const [endTime,    setEndTime]    = useState(initEnd)
   const [category,   setCategory]   = useState(task?.category    ?? 'work')
   const [color,      setColor]      = useState(task?.color       ?? '#0A84FF')
   const titleRef = useRef(null)
@@ -47,7 +49,21 @@ export default function TaskModal({ task, defaultDay, defaultHour, onSave, onDel
 
   const handleSave = () => {
     if (!title.trim()) return
-    onSave({ title: title.trim(), description, day_of_week: day, start_hour: startHour, duration, category, color })
+    
+    // Fallback for strict DB columns
+    const startHourNum = parseInt(startTime.split(':')[0] || '0', 10)
+    
+    onSave({ 
+      title: title.trim(), 
+      description, 
+      day_of_week: day, 
+      start_time: startTime,
+      end_time: endTime,
+      start_hour: startHourNum, // old DB column compat
+      duration: 1,              // old DB column compat
+      category, 
+      color 
+    })
   }
 
   const handleKey = (e) => {
@@ -147,15 +163,11 @@ export default function TaskModal({ task, defaultDay, defaultHour, onSave, onDel
             </div>
             <div className="space-y-1.5">
               <label className="text-[11px] text-text-tertiary font-medium flex items-center gap-1"><Clock size={10}/>Début</label>
-              <select value={startHour} onChange={e => setStartHour(Number(e.target.value))} className="input-base text-sm py-2">
-                {HOURS.map(h => <option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>)}
-              </select>
+              <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="input-base text-sm py-2" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] text-text-tertiary font-medium flex items-center gap-1"><Clock size={10}/>Durée</label>
-              <select value={duration} onChange={e => setDuration(Number(e.target.value))} className="input-base text-sm py-2">
-                {DURATIONS.map(d => <option key={d} value={d}>{d}h</option>)}
-              </select>
+              <label className="text-[11px] text-text-tertiary font-medium flex items-center gap-1"><Clock size={10}/>Fin</label>
+              <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="input-base text-sm py-2" />
             </div>
           </div>
 
@@ -164,7 +176,7 @@ export default function TaskModal({ task, defaultDay, defaultHour, onSave, onDel
             <div className="w-1 self-stretch rounded-full" style={{ background: color }} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-text-primary truncate">{title || 'Aperçu de la tâche'}</p>
-              <p className="text-xs text-text-secondary">{DAYS[day]}, {String(startHour).padStart(2,'0')}:00 → {String(Math.min(startHour + duration, 24)).padStart(2,'0')}:00 · {duration}h</p>
+              <p className="text-xs text-text-secondary">{DAYS[day]}, {startTime} → {endTime}</p>
             </div>
             <span className="text-xl">{cat?.emoji}</span>
           </div>

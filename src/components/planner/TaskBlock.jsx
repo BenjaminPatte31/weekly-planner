@@ -18,11 +18,14 @@ export default function TaskBlock({ task, onClick, onToggle, isDragging }) {
     transition: isSortableDragging ? 'none' : transition,
     opacity:    isSortableDragging ? 0 : 1,
     zIndex:     isSortableDragging ? 50 : 10,
-    gridRow:    `${task.start_hour + 1} / span ${task.duration}`,
+    height:     '100%',
   }
 
   const cat   = CATEGORIES.find(c => c.value === task.category)
   const color = task.color || cat?.color || '#48484A'
+
+  const startTimeStr = task.start_time || `${String(task.start_hour).padStart(2,'0')}:00`
+  const endTimeStr   = task.end_time || `${String(Math.min(task.start_hour + task.duration, 24)).padStart(2,'0')}:00`
 
   return (
     <motion.div
@@ -42,7 +45,6 @@ export default function TaskBlock({ task, onClick, onToggle, isDragging }) {
         style={{
           background:  `${color}22`,
           border:      `1px solid ${color}44`,
-          minHeight:   `${task.duration * MIN_SLOT_HEIGHT - 4}px`,
         }}
       >
         {/* Color left bar */}
@@ -89,9 +91,9 @@ export default function TaskBlock({ task, onClick, onToggle, isDragging }) {
             >
               {task.title}
             </p>
-            {task.duration >= 2 && (
+            {true && (
               <p className="text-[9px] text-text-tertiary mt-0.5">
-                {String(task.start_hour).padStart(2,'0')}:00 – {String(Math.min(task.start_hour + task.duration, 24)).padStart(2,'0')}:00
+                {startTimeStr} – {endTimeStr}
               </p>
             )}
           </div>
@@ -121,7 +123,7 @@ export function TaskBlockOverlay({ task }) {
       style={{
         background:  `${color}33`,
         border:      `1px solid ${color}66`,
-        minHeight:   `${task.duration * MIN_SLOT_HEIGHT - 4}px`,
+        height:      '100%',
         width:       '100%',
       }}
     >

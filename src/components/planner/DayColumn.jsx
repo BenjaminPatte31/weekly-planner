@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react'
 import TaskBlock from './TaskBlock'
 import { format, isToday } from 'date-fns'
 import { fr } from 'date-fns/locale'
-
+import { timeToMinutes } from '../../lib/timeUtils'
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MIN_SLOT_HEIGHT = 56
 
@@ -48,24 +48,30 @@ export default function DayColumn({ date, dayIndex, tasks, onAddTask, onEditTask
 
           {/* Task blocks — absolutely positioned */}
           <AnimatePresence>
-            {tasks.map(task => (
-              <div
-                key={task.id}
-                className="absolute inset-x-0 pointer-events-none group"
-                style={{
-                  top:    `${task.start_hour * MIN_SLOT_HEIGHT}px`,
-                  height: `${task.duration * MIN_SLOT_HEIGHT}px`,
-                }}
-              >
-                <div className="relative h-full pointer-events-auto">
-                  <TaskBlock
-                    task={task}
-                    onClick={onEditTask}
-                    onToggle={onToggle}
-                  />
+            {tasks.map(task => {
+              const startMins = timeToMinutes(task.start_time || `${String(task.start_hour).padStart(2,'0')}:00`)
+              const endMins = timeToMinutes(task.end_time || `${String(Math.min(24, task.start_hour + task.duration)).padStart(2,'0')}:00`)
+              const durationMins = Math.max(15, endMins - startMins)
+              
+              return (
+                <div
+                  key={task.id}
+                  className="absolute inset-x-0 pointer-events-none group px-1"
+                  style={{
+                    top:    `${(startMins / 60) * MIN_SLOT_HEIGHT}px`,
+                    height: `${(durationMins / 60) * MIN_SLOT_HEIGHT}px`,
+                  }}
+                >
+                  <div className="relative h-full pointer-events-auto shadow-sm">
+                    <TaskBlock
+                      task={task}
+                      onClick={onEditTask}
+                      onToggle={onToggle}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </AnimatePresence>
         </SortableContext>
       </div>
