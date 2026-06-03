@@ -16,7 +16,7 @@ import { timeToMinutes, minutesToTime } from '../../lib/timeUtils'
 const START_HOUR       = 7
 const END_HOUR         = 23
 const HOURS            = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => i + START_HOUR)
-const MIN_SLOT_HEIGHT  = 52   // 17 slots × 52px = 884px — fits most screens
+const MIN_SLOT_HEIGHT  = 48   // 17 × 48px = 816px
 const TIME_COL_WIDTH   = 44
 export { START_HOUR, END_HOUR, MIN_SLOT_HEIGHT }
 
@@ -74,15 +74,17 @@ export default function WeekGrid({ weekStart, tasks, onAddTask, onEditTask, onTo
           <div className="flex-shrink-0 sticky left-0 z-30 bg-bg-surface/90 backdrop-blur-sm border-r border-bg-border/40" style={{ width: TIME_COL_WIDTH }}>
             {/* Spacer matching sticky day-header */}
             <div className="sticky top-0 z-40 bg-bg-surface/95 backdrop-blur-md border-b border-bg-border/40" style={{ height: 68 }} />
-            {HOURS.map((h, idx) => (
+            {HOURS.map(h => (
               <div
                 key={h}
-                className="flex items-center justify-end pr-2 text-[10px] text-text-tertiary font-medium select-none"
+                className="flex items-start justify-end pr-2 pt-1 text-[10px] text-text-tertiary font-medium select-none"
                 style={{ height: MIN_SLOT_HEIGHT }}
               >
                 {String(h).padStart(2,'0')}
               </div>
             ))}
+            {/* Extra space so 23h label + its slot is fully visible */}
+            <div style={{ height: MIN_SLOT_HEIGHT }} />
           </div>
 
           {/* 7-column grid */}
