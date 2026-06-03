@@ -7,9 +7,9 @@ import TaskBlock from './TaskBlock'
 import { format, isToday } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { timeToMinutes } from '../../lib/timeUtils'
-import { START_HOUR, MIN_SLOT_HEIGHT } from './WeekGrid'
+import { START_HOUR, END_HOUR, MIN_SLOT_HEIGHT } from './WeekGrid'
 
-const HOURS = Array.from({ length: 23 - START_HOUR + 1 }, (_, i) => i + START_HOUR)
+const HOURS = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => i + START_HOUR)
 
 export default function DayColumn({ date, dayIndex, tasks, onAddTask, onEditTask, onToggle }) {
   const isCurrentDay = isToday(date)
